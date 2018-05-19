@@ -22,6 +22,7 @@
                  [yada "1.2.11"]
                  [aleph "0.4.5-alpha6"]
                  [manifold "0.1.7-alpha6"]
+                 [clj-time "0.14.4"]
 
                  [com.layerware/hugsql "0.4.8"]
                  [hikari-cp "2.3.0"]
