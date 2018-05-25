@@ -1,5 +1,6 @@
 (ns io.hosaka.user.orchestrator
   (:require [com.stuartsierra.component :as component]
+            [manifold.deferred :as d]
             [io.hosaka.user.db.users :as users]))
 
 
@@ -18,7 +19,11 @@
    [:db]))
 
 (defn get-user-by-login [{:keys [db]} login]
-  (users/get-user-by-login db login))
+  (d/let-flow [user (users/get-user-by-login db login)
+               roles-and-permissions (users/get-user-roles-and-permissions db (:id user))]
+    (merge user roles-and-permissions)))
 
 (defn get-user-by-id [{:keys [db]} id]
-  (users/get-user-by-id db id))
+  (d/let-flow [user (users/get-user-by-id db id)
+               roles-and-permissions (users/get-user-roles-and-permissions db (:id user))]
+    (merge user roles-and-permissions)))
