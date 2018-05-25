@@ -1,10 +1,11 @@
 (ns io.hosaka.user.orchestrator
   (:require [com.stuartsierra.component :as component]
             [manifold.deferred :as d]
+            [io.hosaka.user.keys :as k]
             [io.hosaka.user.db.users :as users]))
 
 
-(defrecord Orchestrator [db keychain]
+(defrecord Orchestrator [db keys]
   component/Lifecycle
 
   (start [this]
@@ -16,14 +17,25 @@
 (defn new-orchestrator []
   (component/using
    (map->Orchestrator {})
-   [:db]))
+   [:db :keys]))
+
+(defn get-roles-and-permissions [{:keys [db]} user]
+  (d/chain
+   (users/get-user-roles-and-permissions db (:id user))
+   #(merge user %)))
 
 (defn get-user-by-login [{:keys [db]} login]
-  (d/let-flow [user (users/get-user-by-login db login)
-               roles-and-permissions (users/get-user-roles-and-permissions db (:id user))]
-    (merge user roles-and-permissions)))
+  (d/chain
+   (users/get-user-by-login db login)
+   get-roles-and-permissions))
 
 (defn get-user-by-id [{:keys [db]} id]
-  (d/let-flow [user (users/get-user-by-id db id)
-               roles-and-permissions (users/get-user-roles-and-permissions db (:id user))]
-    (merge user roles-and-permissions)))
+  (d/chain
+   (users/get-user-by-id db id)
+   get-roles-and-permissions))
+
+(defn get-user-from-token [{:keys [db keys]} token]
+  (d/chain
+   (k/unsign keys token)
+   :sub
+   get-user-by-id))
