@@ -21,11 +21,17 @@
   (let [login (-> ctx :parameters :query :login)]
     (orchestrator/get-user-by-login orchestrator login)))
 
+(defn get-user-from-token [orchestrator {:keys [body]}]
+  (orchestrator/get-user-from-token orchestrator body))
+
 (defn build-routes [orchestrator health]
   ["/" [
         [["users/" :id]
          (yada/resource {:parameters {:path {:id String}}
-                         :methods {:get {:produces "application/json"
+                         :methods {:post {:produces "application/json"
+                                          :response (partial get-user-from-token orchestrator)
+                                          :consumes "text/plain"}
+                                   :get {:produces "application/json"
                                          :response (partial get-user-by-id orchestrator)}}})]
         ["users"
          (yada/resource {:parameters {:query {:login String}}

@@ -7,6 +7,7 @@
             [io.hosaka.common.db :refer [new-database]]
             [io.hosaka.common.server :refer [new-server]]
             [io.hosaka.user.handler :refer [new-handler]]
+            [io.hosaka.user.keys :refer [new-keys]]
             [io.hosaka.user.orchestrator :refer [new-orchestrator]]
             )
   (:gen-class))
@@ -19,6 +20,7 @@
    :orchestrator (new-orchestrator)
    :handler (new-handler)
    :server (new-server env)
+   :keys (new-keys env)
    :health (new-health env)
    ))
 
