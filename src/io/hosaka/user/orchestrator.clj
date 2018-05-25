@@ -24,18 +24,18 @@
    (users/get-user-roles-and-permissions db (:id user))
    #(merge user %)))
 
-(defn get-user-by-login [{:keys [db]} login]
+(defn get-user-by-login [{:keys [db] :as orchestrator} login]
   (d/chain
    (users/get-user-by-login db login)
-   get-roles-and-permissions))
+   (partial get-roles-and-permissions orchestrator)))
 
-(defn get-user-by-id [{:keys [db]} id]
+(defn get-user-by-id [{:keys [db] :as orchestrator} id]
   (d/chain
    (users/get-user-by-id db id)
-   get-roles-and-permissions))
+   (partial get-roles-and-permissions orchestrator)))
 
-(defn get-user-from-token [{:keys [db keys]} token]
+(defn get-user-from-token [{:keys [keys] :as orchestrator} token]
   (d/chain
    (k/unsign keys token)
    :sub
-   get-user-by-id))
+   #(get-user-by-id orchestrator %)))

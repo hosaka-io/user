@@ -28,14 +28,14 @@
   ["/" [
         [["users/" :id]
          (yada/resource {:parameters {:path {:id String}}
-                         :methods {:post {:produces "application/json"
+                         :methods {:get {:produces "application/json"
+                                         :response (partial get-user-by-id orchestrator)}}})]
+        ["users"
+         (yada/resource {:methods {:post {:produces "application/json"
                                           :response (partial get-user-from-token orchestrator)
                                           :consumes "text/plain"}
                                    :get {:produces "application/json"
-                                         :response (partial get-user-by-id orchestrator)}}})]
-        ["users"
-         (yada/resource {:parameters {:query {:login String}}
-                         :methods {:get {:produces "application/json"
+                                         :parameters {:query {:login String}}
                                          :response (partial get-user-by-login orchestrator)}}})]
         ["health"
          (yada/resource {:methods {:get {:response (partial get-db-health health)
