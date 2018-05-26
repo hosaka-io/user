@@ -18,4 +18,4 @@
     (let [roles-and-permissions (get-user-roles-and-permissions-sql (get-connection db) {:id id})]
       (hash-map
        :roles (set (map :role roles-and-permissions))
-       :permissions (set (map :permission roles-and-permissions))))))
+       :permissions (set (filter some? (map :permission roles-and-permissions)))))))
