@@ -5,20 +5,17 @@
 
 (hugsql/def-db-fns "db/sql/users.sql")
 
-(defn get-user-info [r]
-  (if (empty? r)
-    nil
-    (assoc
-     (select-keys (first r) [:id :name :username])
-     :roles (set (map :role r)))))
-
 (defn get-user-by-login [db login]
-  (->
-   (d/future (get-user-by-login-sql (get-connection db) {:username login}))
-   (d/chain get-user-info)))
+  (d/future
+    (get-user-by-login-sql (get-connection db) {:username login})))
 
 (defn get-user-by-id [db id]
-  (->
-   (d/future (get-user-by-id-sql (get-connection db) {:id id}))
-   (d/catch (fn [e] nil))
-   (d/chain get-user-info)))
+  (d/future
+    (get-user-by-id-sql (get-connection db) {:id id})))
+
+(defn get-user-roles-and-permissions [db id]
+  (d/future
+    (let [roles-and-permissions (get-user-roles-and-permissions-sql (get-connection db) {:id id})]
+      (hash-map
+       :roles (set (map :role roles-and-permissions))
+       :permissions (set (filter some? (map :permission roles-and-permissions)))))))

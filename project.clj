@@ -14,6 +14,9 @@
                  [org.apache.logging.log4j/log4j-api "2.11.0"]
                  [org.apache.logging.log4j/log4j-slf4j-impl "2.11.0"]
 
+                 [buddy/buddy-sign "3.0.0.x"]
+                 [buddy/buddy-core "1.5.0.x"]
+
                  [yogthos/config "1.1.1"]
 
                  [ring/ring-core "1.6.2"]
