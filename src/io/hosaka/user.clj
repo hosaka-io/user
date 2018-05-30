@@ -2,6 +2,7 @@
   (:require [config.core :refer [env]]
             [com.stuartsierra.component :as component]
             [manifold.deferred :as d]
+            [clojure.tools.nrepl.server :as nrepl]
             [clojure.tools.logging :as log]
             [io.hosaka.common.db.health :refer [new-health]]
             [io.hosaka.common.db :refer [new-database]]
@@ -11,8 +12,6 @@
             [io.hosaka.user.orchestrator :refer [new-orchestrator]]
             )
   (:gen-class))
-
-(defonce system (atom {}))
 
 (defn init-system [env]
   (component/system-map
@@ -24,15 +23,21 @@
    :health (new-health env)
    ))
 
+(defonce system (atom {}))
+
+(defonce repl (atom nil))
+
 (defn -main [& args]
   (let [semaphore (d/deferred)]
     (reset! system (init-system env))
 
     (swap! system component/start)
+    (reset! repl (if-let [nrepl-port (:nrepl-port env)] (nrepl/start-server :port nrepl-port) nil))
     (log/info "User Service booted")
     (deref semaphore)
     (log/info "User Service going down")
     (component/stop @system)
+    (swap! repl (fn [server] (do (if server (nrepl/stop-server server)) nil)))
 
     (shutdown-agents)
     ))

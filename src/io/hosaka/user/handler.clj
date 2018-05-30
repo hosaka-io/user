@@ -7,13 +7,6 @@
             [io.hosaka.user.orchestrator :as orchestrator]
             [io.hosaka.common.db.health :as health]))
 
-(defn get-db-health [health {:keys [response]}]
-  (->
-   (health/get-health health)
-   (d/chain #(if (= (:health %1) "HEALTHY")
-               (assoc response :body %1 :status 200)
-               (assoc response :body %1 :status 503)))))
-
 (defn get-user-by-id [orchestrator {:keys [response] :as ctx}]
   (let [id (-> ctx :parameters :path :id)]
     (orchestrator/get-user-by-id orchestrator id)))
@@ -56,7 +49,7 @@
                                          :parameters {:query {:login String}}
                                          :response (secure orchestrator #{"USER_GET_USER_INFO"} get-user-by-login)}}})]
         ["health"
-         (yada/resource {:methods {:get {:response (partial get-db-health health)
+         (yada/resource {:methods {:get {:response (partial health/get-health health)
                                          :produces "application/json"}}})]
         ]])
 
