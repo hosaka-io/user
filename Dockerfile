@@ -1,4 +1,4 @@
-FROM registry.i.hosaka.io/bootstrap
+FROM registry.i.hosaka.io/bootstrap:8-jre-alpine
 COPY ./target/uberjar/user.jar /srv/user.jar
 WORKDIR /srv
 
