@@ -25,3 +25,21 @@ LEFT JOIN users.permissions ON role_permissions.permission_id = permissions.id A
      FROM users.permissions
 LEFT JOIN users.role_permissions ON permissions.id = role_permissions.permission_id AND enabled
     WHERE disabled_on IS NULL
+
+
+-- :name add-permission-sql :! :n
+INSERT INTO users.permissions(id,  description,  added_by)
+                      VALUES(:id, :description, :added_by)
+ON CONFLICT (id) DO NOTHING
+
+-- :name grant-role-permission-sql :! :n
+INSERT INTO users.role_permissions
+(permission_id, role_id, enabled)
+VALUES (:permission_id, :role_id, true)
+ON CONFLICT (permission_id, role_id) DO UPDATE
+SET enabled = true
+
+-- :name revoke-role-permission-sql :! :n
+UPDATE users.role_permissions
+SET enabled = false
+WHERE permission_id = :permission_id AND role_id = :role_id

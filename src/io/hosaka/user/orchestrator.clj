@@ -46,3 +46,6 @@
 
 (defn get-all-permissions [{:keys [db]}]
   (users/get-all-permissions db))
+
+(defn add-permission [{:keys [db]} permission user]
+  (users/add-permission db permission user))

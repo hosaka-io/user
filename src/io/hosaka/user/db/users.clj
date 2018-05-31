@@ -21,8 +21,7 @@
 
 (defn get-user-roles-and-permissions [db id]
   {:pre [(s/valid? ::db/db db)
-         (s/valid? (s/or ::specs/uuid #(instance? java.util.UUID %)) id)
-         ]}
+         (s/valid? ::specs/uuid)]}
   (d/future
     (let [roles-and-permissions (get-user-roles-and-permissions-sql (get-connection db) {:id id})]
       (hash-map
@@ -38,3 +37,8 @@
         (select-keys (first permision-and-role) [:id :description])
         :roles (set (filter some? (map :role_id permision-and-role)))))
      (partition-by :id (get-all-permissions-sql (get-connection db))))))
+
+(defn add-permission [db permission user]
+  {:pre [(s/valid? ::db/db db)]}
+  (d/future
+    (add-permission-sql (get-connection db) (assoc permission :added_by user))))
