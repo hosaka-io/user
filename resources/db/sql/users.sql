@@ -19,3 +19,9 @@ LEFT JOIN users.logins ON users.id = logins.user_id AND logins.primary_login
 LEFT JOIN users.role_permissions ON role_permissions.role_id = roles.id and role_permissions.enabled
 LEFT JOIN users.permissions ON role_permissions.permission_id = permissions.id AND permissions.disabled_on is null
     WHERE roles.enabled AND user_id = CAST(:id AS UUID)
+
+-- :name get-all-permissions-sql :? :*
+   SELECT id, description, role_id
+     FROM users.permissions
+LEFT JOIN users.role_permissions ON permissions.id = role_permissions.permission_id AND enabled
+    WHERE disabled_on IS NULL

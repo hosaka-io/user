@@ -25,17 +25,24 @@
    #(merge user %)))
 
 (defn get-user-by-login [{:keys [db] :as orchestrator} login]
-  (d/chain
-   (users/get-user-by-login db login)
-   (partial get-roles-and-permissions orchestrator)))
+  (try
+    (d/chain
+     (users/get-user-by-login db login)
+     (partial get-roles-and-permissions orchestrator))
+    (catch AssertionError e (d/error-deferred e))))
 
 (defn get-user-by-id [{:keys [db] :as orchestrator} id]
-  (d/chain
-   (users/get-user-by-id db id)
-   (partial get-roles-and-permissions orchestrator)))
+  (try
+      (d/chain
+       (users/get-user-by-id db id)
+       (partial get-roles-and-permissions orchestrator))
+    (catch AssertionError e (d/error-deferred e))))
 
 (defn get-user-from-token [{:keys [keys] :as orchestrator} token]
   (d/chain
    (k/unsign keys token)
    :sub
    #(get-user-by-id orchestrator %)))
+
+(defn get-all-permissions [{:keys [db]}]
+  (users/get-all-permissions db))

@@ -1,0 +1,7 @@
+{
+    "id" : "033758aa-609c-4875-8e4b-12778789947d"
+    "parent": "ffffffff-ffff-ffff-ffff-ffffffffffff",
+    "name": "user",
+    "description": "User Information Service",
+    "entity_type": "service"
+}

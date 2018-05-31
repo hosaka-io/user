@@ -18,6 +18,9 @@
 (defn get-user-from-token [orchestrator {:keys [body]}]
   (orchestrator/get-user-from-token orchestrator body))
 
+(defn get-all-permissions [orchestrator ctx]
+  (orchestrator/get-all-permissions orchestrator))
+
 (defn secure [orchestrator permissions handler]
   (fn [{:keys [response request] :as ctx}]
     (if-let [header (-> request :headers (get "authorization"))]
@@ -48,6 +51,11 @@
                                    :get {:produces "application/json"
                                          :parameters {:query {:login String}}
                                          :response (secure orchestrator #{"USER_GET_USER_INFO"} get-user-by-login)}}})]
+        ["permissions"
+         (yada/resource {:methods
+                         {:get
+                          {:produces "application/json"
+                           :response (secure orchestrator #{"USER_GET_ALL_PERMISSION"} get-all-permissions)}}})]
         ["health"
          (yada/resource {:methods {:get {:response (partial health/get-health health)
                                          :produces "application/json"}}})]
