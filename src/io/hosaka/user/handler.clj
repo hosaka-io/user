@@ -15,8 +15,12 @@
   (let [login (-> ctx :parameters :query :login)]
     (orchestrator/get-user-by-login orchestrator login)))
 
-(defn get-user-from-token [orchestrator {:keys [body]}]
-  (orchestrator/get-user-from-token orchestrator body))
+(defn get-user-from-token [orchestrator {:keys [body response]}]
+  (d/catch
+      (orchestrator/get-user-from-token orchestrator body)
+      (fn [e]
+        (log/info "Invalid authorization token" e)
+        (assoc response :body {:error "Invalid authorization token"} :status 401))))
 
 (defn get-all-permissions [orchestrator ctx]
   (orchestrator/get-all-permissions orchestrator))
