@@ -9,7 +9,7 @@
 
 (defn get-user-by-login [db login]
   {:pre [(s/valid? ::db/db db)
-         (s/valid? ::specs/non-empty-string)]}
+         (s/valid? ::specs/non-empty-string login)]}
   (d/future
     (get-user-by-login-sql (get-connection db) {:username login})))
 
@@ -21,7 +21,7 @@
 
 (defn get-user-roles-and-permissions [db id]
   {:pre [(s/valid? ::db/db db)
-         (s/valid? ::specs/uuid)]}
+         (s/valid? ::specs/uuid id)]}
   (d/future
     (let [roles-and-permissions (get-user-roles-and-permissions-sql (get-connection db) {:id id})]
       (hash-map
