@@ -29,7 +29,7 @@ LEFT JOIN users.role_permissions ON permissions.id = role_permissions.permission
 
 -- :name add-permission-sql :! :n
 INSERT INTO users.permissions(id,  description,  added_by)
-                      VALUES(:id, :description, :added_by)
+                      VALUES(:id, :description, CAST(:added_by AS UUID))
 ON CONFLICT (id) DO NOTHING
 
 -- :name grant-role-permission-sql :! :n

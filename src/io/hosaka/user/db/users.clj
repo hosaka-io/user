@@ -39,6 +39,21 @@
      (partition-by :id (get-all-permissions-sql (get-connection db))))))
 
 (defn add-permission [db permission user]
-  {:pre [(s/valid? ::db/db db)]}
+  {:pre [(s/valid? ::db/db db)
+         (s/valid? ::specs/uuid user)]}
   (d/future
     (add-permission-sql (get-connection db) (assoc permission :added_by user))))
+
+(defn grant-role-permission [db permission role user]
+  {:pre [(s/valid? ::db/db db)
+         (s/valid? ::specs/non-empty-string permission)
+         (s/valid? ::specs/non-empty-string user)
+         (s/valid? ::specs/uuid user)]}
+  (d/future
+    (grant-role-permission-sql (get-connection db) {:permission_id permission :role_id role}))
+
+
+
+
+
+  )

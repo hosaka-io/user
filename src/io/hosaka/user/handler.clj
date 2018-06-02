@@ -27,9 +27,15 @@
   (orchestrator/get-all-permissions orchestrator))
 
 (defn add-permission [orchestrator {:keys [body response user]}]
-  (let [user-id (:sub user)]
-    (if (or (empty? (:roles body)) (contains? (:permissions user) "USER_ASSIGN_PERMISSION"))
-      (orchestrator/add-permission orchestrator body user-id)
+  (let [user-id (:sub user)
+        permissions (if (map? body) (vector body) body)]
+    (if (or (empty? (mapcat :roles permissions)) (contains? (:permissions user) "USER_ASSIGN_PERMISSION"))
+      (d/chain
+       (apply d/zip
+              (doall
+               (map #(orchestrator/add-permission orchestrator % user-id) permissions)))
+       #(reduce + %)
+       #(if (< 0 %) {:status "added" :cnt %} {:status "not added"}))
       (assoc response :body {:error "Incorrect permissions"} :status 403))))
 
 (defn secure [orchestrator permissions handler]

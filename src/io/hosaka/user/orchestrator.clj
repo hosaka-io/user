@@ -39,13 +39,31 @@
     (catch AssertionError e (d/error-deferred e))))
 
 (defn get-user-from-token [{:keys [keys] :as orchestrator} token]
-  (d/chain
-   (k/unsign keys token)
-   :sub
-   #(get-user-by-id orchestrator %)))
+  (d/let-flow [claims (k/unsign keys token)
+               user (get-user-by-id orchestrator (:sub claims))]
+    (merge claims user)))
 
 (defn get-all-permissions [{:keys [db]}]
   (users/get-all-permissions db))
 
-(defn add-permission [{:keys [db]} permission user]
-  (users/add-permission db permission user))
+(defn grant-role-permission [{:keys [db]} permissions roles user]
+  (if (or (empty? permissions)
+          (empty? roles))
+    (d/success-deferred 0)
+    (d/chain
+     (apply d/zip
+            (doall
+             (for [permission permissions
+                   role roles]
+               (users/grant-role-permission db permission role user))))
+     #(reduce + %))))
+
+(defn add-permission [{:keys [db] :as orchestrator} permission user]
+  (->
+   (users/add-permission db (select-keys permission [:id :description]) user)
+   (d/chain
+    (fn [c]
+      (d/chain
+       (grant-role-permission orchestrator (-> permission :id list) (:roles permission) user)
+       #(+ c %))))))
+
