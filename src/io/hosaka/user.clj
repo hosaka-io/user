@@ -27,12 +27,21 @@
 
 (defonce repl (atom nil))
 
+(defn get-port [port]
+  (cond
+    (string? port) (try (Integer/parseInt port)
+                        (catch Exception e nil))
+    (integer? port) port
+    :else nil))
+
 (defn -main [& args]
   (let [semaphore (d/deferred)]
     (reset! system (init-system env))
 
     (swap! system component/start)
-    (reset! repl (if-let [nrepl-port (:nrepl-port env)] (nrepl/start-server :port nrepl-port) nil))
+    
+    (reset! repl (if-let [nrepl-port (get-port (:nrepl-port env))] (nrepl/start-server :port nrepl-port) nil))
+
     (log/info "User Service booted")
     (deref semaphore)
     (log/info "User Service going down")
