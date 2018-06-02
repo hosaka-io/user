@@ -20,7 +20,6 @@ pipeline {
                     docker.withRegistry('https://registry.i.hosaka.io') {
                         def app = docker.build("registry.i.hosaka.io/user")
                         app.push("latest")
-                        app.push("${env.BUILD_NUMBER}")
                         app.push("${env.BRANCH_NAME}")
                     }}
                 }
